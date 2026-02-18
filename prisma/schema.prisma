@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  password      String?   // For credentials provider
+  image         String?
+  assignments   Assignment[]
+  courses       Course[]
+  preferences   UserPreference?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Assignment {
+  id              String   @id @default(cuid())
+  title           String
+  description     String?
+  dueDate         DateTime
+  weight          Int      // 1-10 (Importance)
+  estimatedHours  Float    // Effort
+  priorityScore   Float?   // Calculated priority
+  courseId        String?
+  course          Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  completed       Boolean  @default(false)
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Course {
+  id          String   @id @default(cuid())
+  courseCode  String   // e.g., "CS101"
+  title       String
+  color       String?  // For UI
+  assignments Assignment[]
+  sections    Section[]
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Section {
+  id              String   @id @default(cuid())
+  sectionNumber   String
+  days            String   // Store as comma-separated string or rely on JSON if sqlite supported it better, but string is fine for now e.g. "Mon,Wed,Fri"
+  startTime       String   // "09:00"
+  endTime         String   // "10:15"
+  professor       String?
+  location        String?
+  courseId        String
+  course          Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+}
+
+model UserPreference {
+  id                  String   @id @default(cuid())
+  avoidEarlyClasses   Boolean  @default(false)
+  avoidLateClasses    Boolean  @default(false)
+  maxDailyHours       Int      @default(8)
+  preferredDaysOff    String?  // Comma-separated
+  userId              String   @unique
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
