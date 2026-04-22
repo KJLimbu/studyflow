@@ -3,7 +3,6 @@ import { authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/db"
 import { AssignmentList } from "@/components/assignments/AssignmentList"
-import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Plus } from "lucide-react"
 
@@ -28,15 +27,16 @@ export default async function AssignmentsPage() {
   }
 
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">Assignments</h2>
+    <div className="flex-1 space-y-8 p-6 md:p-8 pt-6 max-w-7xl mx-auto">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="lovable-heading-page text-foreground">Assignments</h2>
+          <p className="text-sm text-[#5f5f5d] mt-1">Manage and track your academic tasks.</p>
+        </div>
         <div className="flex items-center space-x-2">
-          <Link href="/assignments/add">
-            <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Assignment
-            </Button>
+          <Link href="/assignments/add" className="lovable-btn-primary inline-flex items-center gap-2 h-10 px-4 text-sm">
+            <Plus className="h-4 w-4" />
+            Add Assignment
           </Link>
         </div>
       </div>

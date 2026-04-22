@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Trash2, Clock, CheckCircle2, Circle } from "lucide-react"
 import { formatDuration } from "@/lib/utils"
 import { useRouter } from "next/navigation"
+import { D3PriorityGauge } from "@/components/dashboard/D3PriorityGauge"
 
 interface AssignmentListProps {
   assignments: Assignment[]
@@ -68,37 +69,31 @@ export function AssignmentList({ assignments }: AssignmentListProps) {
   return (
     <div className="space-y-8">
         <div>
-            <h3 className="text-lg font-medium mb-4">Pending Tasks</h3>
+            <h3 className="text-lg font-semibold mb-4 text-foreground">Pending Tasks</h3>
             {scoredPending.length === 0 ? (
-                <div className="text-center p-8 border rounded-lg bg-muted/20 text-muted-foreground">
+                <div className="text-center p-12 border border-dashed border-border rounded-xl text-[#5f5f5d]">
                     No pending assignments. Great job!
                 </div>
             ) : (
                 <div className="space-y-3">
                     {scoredPending.map((assignment) => (
-                        <div key={assignment.id} className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/10 transition-colors">
+                        <div key={assignment.id} className="flex items-center justify-between p-4 rounded-xl border border-border bg-background hover:border-foreground/20 transition-all duration-200">
                             <div className="flex items-center gap-4">
                                 <Button 
                                     variant="outline" 
                                     size="icon" 
-                                    className="h-9 w-9 rounded-full border-2 border-muted-foreground/30 hover:border-green-500 hover:bg-green-500/10 transition-colors shrink-0"
+                                    className="h-9 w-9 rounded-full border-2 border-[#eceae4] hover:border-foreground/40 hover:bg-[rgba(28,28,28,0.04)] transition-all duration-200 shrink-0"
                                     onClick={() => toggleComplete(assignment.id, assignment.completed)}
                                     disabled={loadingId === assignment.id}
                                     title="Mark as completed"
                                 >
-                                    <Circle className="h-5 w-5 text-muted-foreground/50" />
+                                    <Circle className="h-5 w-5 text-[#5f5f5d]/50" />
                                 </Button>
                                 <div className="space-y-1">
-                                    <div className="font-semibold leading-none flex items-center gap-2">
+                                    <div className="font-medium leading-none flex items-center gap-3 text-foreground">
                                         {assignment.title}
-                                        <Badge variant={
-                                            assignment.priorityScore > 8 ? "destructive" :
-                                            assignment.priorityScore > 5 ? "default" : "secondary"
-                                        } className="text-[10px] h-5 px-1.5">
-                                            {assignment.priorityScore.toFixed(1)}
-                                        </Badge>
                                     </div>
-                                    <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                                    <div className="flex items-center gap-3 text-xs text-[#5f5f5d]">
                                         <span className="flex items-center gap-1">
                                             <Clock className="h-3 w-3" />
                                             {new Date(assignment.dueDate).toLocaleDateString()}
@@ -108,15 +103,18 @@ export function AssignmentList({ assignments }: AssignmentListProps) {
                                     </div>
                                 </div>
                             </div>
-                            <Button 
-                                variant="ghost" 
-                                size="icon" 
-                                className="h-8 w-8 text-muted-foreground hover:text-destructive" 
-                                onClick={() => handleDelete(assignment.id)}
-                                disabled={loadingId === assignment.id}
-                            >
-                                <Trash2 className="h-4 w-4" />
-                            </Button>
+                            <div className="flex items-center gap-3">
+                                <D3PriorityGauge score={assignment.priorityScore} size={34} />
+                                <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-8 w-8 text-[#5f5f5d] hover:text-destructive" 
+                                    onClick={() => handleDelete(assignment.id)}
+                                    disabled={loadingId === assignment.id}
+                                >
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -125,15 +123,15 @@ export function AssignmentList({ assignments }: AssignmentListProps) {
 
         {sortedCompleted.length > 0 && (
             <div>
-                <h3 className="text-lg font-medium mb-4 text-muted-foreground">Completed</h3>
+                <h3 className="text-lg font-semibold mb-4 text-[#5f5f5d]">Completed</h3>
                 <div className="space-y-3 opacity-60">
                     {sortedCompleted.map((assignment) => (
-                        <div key={assignment.id} className="flex items-center justify-between p-4 rounded-lg border bg-muted/50">
+                        <div key={assignment.id} className="flex items-center justify-between p-4 rounded-xl border border-border bg-[rgba(28,28,28,0.02)]">
                             <div className="flex items-center gap-4">
                                 <Button 
                                     variant="ghost" 
                                     size="icon" 
-                                    className="h-9 w-9 rounded-full bg-green-500/20 text-green-600 hover:bg-red-500/10 hover:text-red-500 transition-colors shrink-0"
+                                    className="h-9 w-9 rounded-full bg-foreground/10 text-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-200 shrink-0"
                                     onClick={() => toggleComplete(assignment.id, assignment.completed)}
                                     disabled={loadingId === assignment.id}
                                     title="Undo completion"
@@ -141,7 +139,7 @@ export function AssignmentList({ assignments }: AssignmentListProps) {
                                     <CheckCircle2 className="h-6 w-6" />
                                 </Button>
                                 <div className="space-y-1">
-                                    <span className="font-medium leading-none line-through">
+                                    <span className="font-medium leading-none line-through text-[#5f5f5d]">
                                         {assignment.title}
                                     </span>
                                 </div>
@@ -149,7 +147,7 @@ export function AssignmentList({ assignments }: AssignmentListProps) {
                             <Button 
                                 variant="ghost" 
                                 size="icon" 
-                                className="h-8 w-8 text-muted-foreground hover:text-destructive" 
+                                className="h-8 w-8 text-[#5f5f5d] hover:text-destructive" 
                                 onClick={() => handleDelete(assignment.id)}
                                 disabled={loadingId === assignment.id}
                             >

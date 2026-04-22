@@ -31,6 +31,8 @@ model Assignment {
   weight          Int      // 1-10 (Importance)
   estimatedHours  Float    // Effort
   priorityScore   Float?   // Calculated priority
+  startTime       String   @default("12:00")
+  endTime         String   @default("13:00")
   courseId        String?
   course          Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
   completed       Boolean  @default(false)

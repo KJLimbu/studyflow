@@ -16,7 +16,9 @@ describe("Priority Scheduler", () => {
     userId: "u1",
     createdAt: new Date(),
     updatedAt: new Date(),
-    priorityScore: null
+    priorityScore: null,
+    startTime: "12:00",
+    endTime: "13:00"
   }
 
   test("calculates high urgency for overdue items", () => {

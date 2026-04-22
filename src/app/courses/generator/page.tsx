@@ -5,8 +5,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch" // Need custom Switch or checkbox? Shadcn has Switch.
-// I haven't added switch yet. Checkbox is installed. Used Checkbox for now or add Switch.
 import { Checkbox } from "@/components/ui/checkbox"
 import { Textarea } from "@/components/ui/textarea"
 import { generateSchedules } from "@/lib/algorithms/timetable-generator"
@@ -44,9 +42,7 @@ export default function GeneratorPage() {
   const handleGenerate = async () => {
     setIsLoading(true)
     try {
-        // Parse JSON
         const courses = JSON.parse(coursesJson) as CourseInput[]
-        // Simulate computation
         await new Promise(resolve => setTimeout(resolve, 500))
         const results = generateSchedules(courses, constraints)
         setSchedules(results)
@@ -58,9 +54,12 @@ export default function GeneratorPage() {
   }
 
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">Schedule Generator</h2>
+    <div className="flex-1 space-y-8 p-6 md:p-8 pt-6 max-w-7xl mx-auto">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="lovable-heading-page text-foreground">Schedule Generator</h2>
+          <p className="text-sm text-[#5f5f5d] mt-1">Generate conflict-free timetable options.</p>
+        </div>
       </div>
       
       <div className="grid gap-6 md:grid-cols-2">
@@ -69,12 +68,12 @@ export default function GeneratorPage() {
                 <CardHeader>
                     <CardTitle>Course Data (JSON)</CardTitle>
                     <CardDescription>
-                        Paste your course sections here. (UI for adding courses manually coming soon)
+                        Paste your course sections here.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Textarea 
-                        className="font-mono text-xs h-[300px]" 
+                        className="font-mono text-xs h-[300px] bg-[#f7f4ed] border-[#eceae4]" 
                         value={coursesJson}
                         onChange={(e) => setCoursesJson(e.target.value)}
                     />
@@ -86,33 +85,33 @@ export default function GeneratorPage() {
                     <CardTitle>Preferences</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-3">
                         <Checkbox 
                             id="early" 
                             checked={constraints.avoidEarlyClasses}
                             onCheckedChange={(c) => setConstraints({...constraints, avoidEarlyClasses: !!c})}
                         />
-                        <Label htmlFor="early">Avoid Early Classes (Before 9 AM)</Label>
+                        <Label htmlFor="early" className="text-sm font-normal text-foreground cursor-pointer">Avoid Early Classes (Before 9 AM)</Label>
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-3">
                         <Checkbox 
                             id="late" 
                             checked={constraints.avoidLateClasses}
                             onCheckedChange={(c) => setConstraints({...constraints, avoidLateClasses: !!c})}
                         />
-                        <Label htmlFor="late">Avoid Late Classes (After 5 PM)</Label>
+                        <Label htmlFor="late" className="text-sm font-normal text-foreground cursor-pointer">Avoid Late Classes (After 5 PM)</Label>
                     </div>
                 </CardContent>
             </Card>
             
-            <Button onClick={handleGenerate} disabled={isLoading} className="w-full">
+            <Button onClick={handleGenerate} disabled={isLoading} className="w-full h-11">
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Generate Schedules
             </Button>
         </div>
 
         <div className="space-y-4">
-            <h3 className="text-lg font-medium">Results ({schedules.length})</h3>
+            <h3 className="text-lg font-semibold text-foreground">Results ({schedules.length})</h3>
             <div className="grid grid-cols-1 gap-4">
                 {schedules.map((schedule, i) => (
                     <TimetableGrid 
@@ -124,7 +123,7 @@ export default function GeneratorPage() {
                 ))}
             </div>
             {schedules.length === 0 && !isLoading && (
-                <div className="text-center text-muted-foreground p-8 border rounded-lg border-dashed">
+                <div className="text-center text-[#5f5f5d] p-12 border rounded-xl border-dashed border-border">
                     No schedules generated yet.
                 </div>
             )}

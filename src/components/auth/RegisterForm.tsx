@@ -62,7 +62,6 @@ export function RegisterForm() {
       router.push("/login")
     } catch (error) {
       console.error(error)
-      // Provide user feedback here if possible, e.g., toast
     } finally {
       setIsLoading(false)
     }
@@ -71,17 +70,23 @@ export function RegisterForm() {
   return (
     <div className="grid gap-6">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
           <FormField
             control={form.control}
             name="name"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Name</FormLabel>
+              <FormItem className="space-y-2">
+                <FormLabel className="text-sm font-medium text-foreground">
+                  Name
+                </FormLabel>
                 <FormControl>
-                  <Input placeholder="John Doe" disabled={isLoading} {...field} />
+                  <Input 
+                    placeholder="Your name" 
+                    disabled={isLoading} 
+                    {...field} 
+                  />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-xs" />
               </FormItem>
             )}
           />
@@ -89,12 +94,19 @@ export function RegisterForm() {
             control={form.control}
             name="email"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
+              <FormItem className="space-y-2">
+                <FormLabel className="text-sm font-medium text-foreground">
+                  Email
+                </FormLabel>
                 <FormControl>
-                  <Input placeholder="name@example.com" type="email" disabled={isLoading} {...field} />
+                  <Input 
+                    placeholder="you@example.com" 
+                    type="email" 
+                    disabled={isLoading} 
+                    {...field} 
+                  />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-xs" />
               </FormItem>
             )}
           />
@@ -102,16 +114,27 @@ export function RegisterForm() {
             control={form.control}
             name="password"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
+              <FormItem className="space-y-2">
+                <FormLabel className="text-sm font-medium text-foreground">
+                  Password
+                </FormLabel>
                 <FormControl>
-                  <Input placeholder="********" type="password" disabled={isLoading} {...field} />
+                  <Input 
+                    placeholder="••••••••" 
+                    type="password" 
+                    disabled={isLoading} 
+                    {...field} 
+                  />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-xs" />
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button 
+            type="submit" 
+            className="w-full h-11 mt-2" 
+            disabled={isLoading}
+          >
             {isLoading && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             )}

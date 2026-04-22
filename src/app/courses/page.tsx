@@ -3,7 +3,6 @@ import { authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/db"
 import { CourseList } from "@/components/courses/CourseList"
-import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Plus, Table } from "lucide-react"
 
@@ -21,21 +20,20 @@ export default async function CoursesPage() {
   })
 
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">Courses</h2>
+    <div className="flex-1 space-y-8 p-6 md:p-8 pt-6 max-w-7xl mx-auto">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="lovable-heading-page text-foreground">Courses</h2>
+          <p className="text-sm text-[#5f5f5d] mt-1">Manage your enrolled courses and sections.</p>
+        </div>
         <div className="flex items-center space-x-2">
-          <Link href="/courses/generator">
-            <Button variant="outline">
-                <Table className="mr-2 h-4 w-4" />
-                Generator
-            </Button>
+          <Link href="/courses/generator" className="lovable-btn-secondary inline-flex items-center gap-2 h-10 px-4 text-sm">
+            <Table className="h-4 w-4" />
+            Generator
           </Link>
-          <Link href="/courses/add">
-            <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Course
-            </Button>
+          <Link href="/courses/add" className="lovable-btn-primary inline-flex items-center gap-2 h-10 px-4 text-sm">
+            <Plus className="h-4 w-4" />
+            Add Course
           </Link>
         </div>
       </div>
