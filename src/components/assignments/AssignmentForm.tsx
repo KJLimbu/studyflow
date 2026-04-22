@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useForm } from "react-hook-form"
+import { useForm, Controller } from "react-hook-form"
 import { useRouter } from "next/navigation"
 import { CalendarIcon, Loader2 } from "lucide-react"
 import { format } from "date-fns"
@@ -14,7 +14,6 @@ import {
   Form,
   FormControl,
   FormDescription,
-  FormField,
   FormItem,
   FormLabel,
   FormMessage,
@@ -31,6 +30,8 @@ const formSchema = z.object({
   dueDate: z.date({
     message: "A due date is required.",
   }),
+  startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Must be HH:mm"),
+  endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Must be HH:mm"),
   weight: z.coerce.number().min(1).max(10),
   estimatedHours: z.coerce.number().min(0.1),
   courseId: z.string().optional(),
@@ -64,6 +65,8 @@ export function AssignmentForm() {
     resolver: zodResolver(formSchema) as any,
     defaultValues: {
       title: "",
+      startTime: "12:00",
+      endTime: "13:00",
       weight: 5,
       estimatedHours: 1,
     },
@@ -81,6 +84,11 @@ export function AssignmentForm() {
       })
 
       if (!response.ok) {
+        if (response.status === 409) {
+          const errorMsg = await response.text()
+          alert("Schedule Conflict: " + errorMsg)
+          return
+        }
         throw new Error("Failed to create assignment")
       }
 
@@ -88,6 +96,7 @@ export function AssignmentForm() {
       router.refresh()
     } catch (error) {
       console.error(error)
+      alert("An unexpected error occurred.")
     } finally {
       setIsLoading(false)
     }
@@ -96,125 +105,160 @@ export function AssignmentForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-8">
-        <FormField
-          control={form.control as any}
-          name="title"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Title</FormLabel>
-              <FormControl>
-                <Input placeholder="Midterm Exam" {...field} />
-              </FormControl>
+      <Controller
+        control={form.control}
+        name="title"
+        render={({ field }: any) => (
+          <FormItem>
+            <FormLabel>Title</FormLabel>
+            <FormControl>
+              <Input placeholder="Midterm Exam" {...field} />
+            </FormControl>
+            <FormDescription>
+              Name of the assignment or exam.
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Controller
+          control={form.control}
+          name="dueDate"
+          render={({ field }: any) => (
+            <FormItem className="flex flex-col">
+              <FormLabel>Due Date</FormLabel>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <FormControl>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-full pl-3 text-left font-normal",
+                        !field.value && "text-muted-foreground"
+                      )}
+                    >
+                      {field.value ? (
+                        format(field.value, "PPP")
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                    </Button>
+                  </FormControl>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={field.value}
+                    onSelect={field.onChange}
+                    disabled={(date: Date) => date < new Date("1900-01-01")}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
               <FormDescription>
-                Name of the assignment or exam.
+                When is this due?
               </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control as any}
-            name="dueDate"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Due Date</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {field.value ? (
-                          format(field.value, "PPP")
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      disabled={(date) => date < new Date("1900-01-01")}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-                <FormDescription>
-                  When is this due?
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <Controller
+          control={form.control}
+          name="weight"
+          render={({ field }: any) => (
+            <FormItem>
+              <FormLabel>Importance (1-10)</FormLabel>
+              <FormControl>
+                <Input type="number" min={1} max={10} {...field} />
+              </FormControl>
+              <FormDescription>
+                1 = Low, 10 = High (Exam)
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-          <FormField
-            control={form.control as any}
-            name="weight"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Importance (1-10)</FormLabel>
-                <FormControl>
-                  <Input type="number" min={1} max={10} {...field} />
-                </FormControl>
-                <FormDescription>
-                  1 = Low, 10 = High (Exam)
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <Controller
+          control={form.control}
+          name="estimatedHours"
+          render={({ field }: any) => (
+            <FormItem>
+              <FormLabel>Estimated Hours</FormLabel>
+              <FormControl>
+                <Input type="number" step="0.5" {...field} />
+              </FormControl>
+              <FormDescription>
+                How long will this take?
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-          <FormField
-            control={form.control as any}
-            name="estimatedHours"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Estimated Hours</FormLabel>
-                <FormControl>
-                  <Input type="number" step="0.5" {...field} />
-                </FormControl>
-                <FormDescription>
-                  How long will this take?
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control as any}
-            name="courseId"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Course (Optional)</FormLabel>
-                <CourseSelector
-                  value={field.value}
-                  onSelect={field.onChange}
-                  courses={courses}
-                />
-                <FormDescription>
-                  Link to a course
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+        <Controller
+          control={form.control}
+          name="startTime"
+          render={({ field }: any) => (
+            <FormItem>
+              <FormLabel>Start Time</FormLabel>
+              <FormControl>
+                <Input type="time" {...field} />
+              </FormControl>
+              <FormDescription>
+                When do you want to start this?
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-        <Button type="submit" disabled={isLoading}>
-          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Create Assignment
-        </Button>
-      </form>
+        <Controller
+          control={form.control}
+          name="endTime"
+          render={({ field }: any) => (
+            <FormItem>
+              <FormLabel>End Time</FormLabel>
+              <FormControl>
+                <Input type="time" {...field} />
+              </FormControl>
+              <FormDescription>
+                When will this end?
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <Controller
+          control={form.control}
+          name="courseId"
+          render={({ field }: any) => (
+            <FormItem className="flex flex-col">
+              <FormLabel>Course (Optional)</FormLabel>
+              <CourseSelector
+                value={field.value}
+                onSelect={field.onChange}
+                courses={courses}
+              />
+              <FormDescription>
+                Link to a course
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+
+      <Button type="submit" disabled={isLoading}>
+        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        Create Assignment
+      </Button>
+    </form>
     </Form>
   )
 }

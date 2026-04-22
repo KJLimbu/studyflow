@@ -1,20 +1,16 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-sans",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {
-  title: "StudyFlow",
-  description: "Schedule Smarter, Not Harder. tailored for students.",
+  title: "StudyFlow — Smart Study Management",
+  description: "Schedule smarter, not harder. StudyFlow helps students prioritize their academic workload using an intelligent scheduling algorithm.",
 };
 
 import { Providers } from "@/components/providers";
@@ -28,11 +24,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background text-foreground`}
+        className={`${inter.variable} font-sans antialiased min-h-screen bg-background text-foreground`}
       >
         <Providers>
           <Navbar />
-          {children}
+          <main>{children}</main>
         </Providers>
       </body>
     </html>

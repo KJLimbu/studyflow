@@ -48,16 +48,26 @@ export const authOptions: NextAuthOptions = {
         user: {
           ...session.user,
           id: token.id,
+          name: token.name,
+          email: token.email,
         },
       }
     },
-    jwt: ({ token, user }) => {
+    jwt: ({ token, user, trigger, session }) => {
+      // Initial sign-in: persist user id
       if (user) {
         const u = user as unknown as any
         return {
           ...token,
           id: u.id,
+          name: u.name,
+          email: u.email,
         }
+      }
+      // Client called updateSession() with new profile data
+      if (trigger === "update" && session?.user) {
+        token.name = session.user.name ?? token.name
+        token.email = session.user.email ?? token.email
       }
       return token
     },

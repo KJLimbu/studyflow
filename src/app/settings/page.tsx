@@ -5,61 +5,70 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { LogOut, User } from "lucide-react"
+import { LogOut } from "lucide-react"
+import { ProfileForm } from "@/components/settings/ProfileForm"
 
 export default function SettingsPage() {
   const { data: session } = useSession()
 
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">Settings</h2>
+    <div className="flex-1 space-y-8 p-6 md:p-8 pt-6 max-w-7xl mx-auto">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="lovable-heading-page text-foreground">Settings</h2>
+          <p className="text-sm text-[#5f5f5d] mt-1">Manage your account and preferences.</p>
+        </div>
       </div>
       
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="col-span-2">
-            <CardHeader>
-                <CardTitle>Profile</CardTitle>
-                <CardDescription>
-                    Manage your user profile
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <div className="flex items-center space-x-4">
-                    <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                        <User className="h-6 w-6" />
-                    </div>
-                    <div>
-                        <p className="text-sm font-medium leading-none">{session?.user?.name || "User"}</p>
-                        <p className="text-sm text-muted-foreground">{session?.user?.email}</p>
-                    </div>
-                </div>
-                <Button variant="destructive" onClick={() => signOut({ callbackUrl: "/login" })}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Logout
-                </Button>
-            </CardContent>
-        </Card>
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Editable Profile Card */}
+        <div className="space-y-4">
+          <ProfileForm />
 
-        <Card className="col-span-2">
+          {/* Sign Out — standalone below profile */}
+          <Card>
+            <CardContent className="pt-6">
+              <Button 
+                variant="destructive" 
+                onClick={() => signOut({ callbackUrl: "/login" })}
+                className="h-10 w-full"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Sign Out
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card>
             <CardHeader>
                 <CardTitle>Preferences</CardTitle>
                 <CardDescription>
-                    Customize your StudyFlow experience (Coming Soon)
+                    Customize your StudyFlow experience.
                 </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
                 <div className="flex items-center justify-between space-x-2">
-                    <Label htmlFor="dark-mode">Dark Mode</Label>
-                    <Switch id="dark-mode" disabled />
-                </div>
-                <div className="flex items-center justify-between space-x-2">
-                    <Label htmlFor="notifications">Notifications</Label>
+                    <div>
+                      <Label htmlFor="notifications" className="text-sm font-medium text-foreground">Notifications</Label>
+                      <p className="text-xs text-[#5f5f5d] mt-0.5">Receive reminders for upcoming assignments.</p>
+                    </div>
                     <Switch id="notifications" disabled />
                 </div>
+                <div className="flex items-center justify-between space-x-2">
+                    <div>
+                      <Label htmlFor="compact" className="text-sm font-medium text-foreground">Compact View</Label>
+                      <p className="text-xs text-[#5f5f5d] mt-0.5">Use a denser layout for lists.</p>
+                    </div>
+                    <Switch id="compact" disabled />
+                </div>
+                <p className="text-xs text-[#5f5f5d] border-t border-border pt-4">
+                  More preferences coming soon.
+                </p>
             </CardContent>
         </Card>
       </div>
     </div>
   )
 }
+

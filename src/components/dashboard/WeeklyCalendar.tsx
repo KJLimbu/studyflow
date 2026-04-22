@@ -45,45 +45,46 @@ export function WeeklyCalendar({ events }: WeeklyCalendarProps) {
   return (
     <Card className="h-[600px] flex flex-col">
       <CardHeader className="pb-2">
-        <CardTitle>Weekly Schedule</CardTitle>
+        <CardTitle className="text-foreground">Weekly Schedule</CardTitle>
       </CardHeader>
       <CardContent className="flex-1 p-0 overflow-hidden">
         <ScrollArea className="h-full">
           <div className="flex min-w-[600px]">
             {/* Time labels */}
-            <div className="w-16 flex-none border-r bg-muted/20">
-              <div className="h-10 border-b" /> {/* Header spacer */}
+            <div className="w-16 flex-none border-r border-border">
+              <div className="h-10 border-b border-border" /> {/* Header spacer */}
               {hours.map((hour) => (
-                <div key={hour} className="h-[60px] border-b text-xs text-muted-foreground p-1 text-right pr-2">
+                <div key={hour} className="h-[60px] border-b border-border text-xs text-[#5f5f5d] p-1 text-right pr-2">
                   {hour}:00
                 </div>
               ))}
             </div>
 
             {/* Days columns */}
-            <div className="flex-1 grid grid-cols-5 md:grid-cols-7 divide-x">
+            <div className="flex-1 grid grid-cols-5 md:grid-cols-7 divide-x divide-border">
               {daysOfWeek.map((day) => (
-                <div key={day} className={cn("min-w-[100px]", day === "Sat" || day === "Sun" ? "hidden md:block bg-muted/10" : "")}>
-                  <div className="h-10 border-b flex items-center justify-center font-medium text-sm bg-muted/20 sticky top-0 z-10">
+                <div key={day} className={cn("min-w-[100px]", day === "Sat" || day === "Sun" ? "hidden md:block bg-[rgba(28,28,28,0.02)]" : "")}>
+                  <div className="h-10 border-b border-border flex items-center justify-center font-medium text-sm text-foreground bg-[rgba(28,28,28,0.02)] sticky top-0 z-10">
                     {day}
                   </div>
                   <div className="relative h-[720px]"> {/* 12 hours * 60px */}
                     {hours.map((_, i) => (
-                      <div key={i} className="h-[60px] border-b border-dashed border-muted/50" />
+                      <div key={i} className="h-[60px] border-b border-dashed border-[#eceae4]/70" />
                     ))}
                     
                     {events.filter(e => e.day === day).map(event => (
                       <div
                         key={event.id}
                         className={cn(
-                          "absolute left-1 right-1 rounded px-2 py-1 text-xs border overflow-hidden",
-                          event.type === "class" ? "bg-blue-100 border-blue-200 text-blue-800 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-100" :
-                          "bg-amber-100 border-amber-200 text-amber-800 dark:bg-amber-900/30 dark:border-amber-800 dark:text-amber-100"
+                          "absolute left-1 right-1 rounded-lg px-2 py-1 text-xs border overflow-hidden transition-all duration-200",
+                          event.type === "class" 
+                            ? "bg-foreground/5 border-foreground/15 text-foreground" 
+                            : "bg-[rgba(28,28,28,0.04)] border-[#eceae4] text-foreground"
                         )}
                         style={getEventStyle(event)}
                       >
-                        <div className="font-semibold truncate">{event.title}</div>
-                        <div className="truncate text-[10px] opacity-80">
+                        <div className="font-medium truncate">{event.title}</div>
+                        <div className="truncate text-[10px] text-[#5f5f5d]">
                           {event.startTime} - {event.endTime}
                         </div>
                       </div>

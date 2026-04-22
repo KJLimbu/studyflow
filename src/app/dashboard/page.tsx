@@ -6,6 +6,7 @@ import { calculatePriority, getTodaysFocus, prioritizeAssignments } from "@/lib/
 import { StatsCard } from "@/components/dashboard/StatsCard"
 import { PriorityList } from "@/components/dashboard/PriorityList"
 import { WeeklyCalendar } from "@/components/dashboard/WeeklyCalendar"
+import { DashboardAnimations } from "@/components/dashboard/DashboardAnimations"
 import { BookOpen, Calendar as CalendarIcon, CheckCircle, Clock } from "lucide-react"
 
 export default async function DashboardPage() {
@@ -33,7 +34,6 @@ export default async function DashboardPage() {
   }
 
   // Calculate stats
-  // We need to score assignments first
   const scoredAssignments = prioritizeAssignments(user.assignments)
   const todaysFocus = getTodaysFocus(user.assignments)
   
@@ -41,14 +41,11 @@ export default async function DashboardPage() {
   const totalHours = user.assignments.reduce((acc, curr) => acc + curr.estimatedHours, 0)
   
   // Transform courses/sections to calendar events
-  // For demo/MVP, just showing course sections as repeating events is tricky without real date expansion
-  // We'll just map the generic "days" to this week's calendar for visualization
   const calendarEvents: any[] = []
   
   user.courses.forEach(course => {
     course.sections.forEach(section => {
-      // section.days might be "Mon,Wed"
-      const days = section.days.split(",") // Assuming simple CSV for now based on earlier generic implementation choices
+      const days = section.days.split(",")
       days.forEach(day => {
         calendarEvents.push({
           id: section.id + day,
@@ -65,63 +62,69 @@ export default async function DashboardPage() {
 
   // Add assignments to calendar (due date)
   scoredAssignments.forEach(assignment => {
-     // Naive day extraction from date
      const due = new Date(assignment.dueDate)
      const dayName = due.toLocaleDateString('en-US', { weekday: 'short' })
-     // Only add if it's in the view (visual simplification: assumes assignments are this week for the calendar view)
      
      calendarEvents.push({
         id: assignment.id,
         title: assignment.title,
         day: dayName,
-        startTime: "12:00", // Default time? Or specific? Model just has dueDate (date only usually). 
-        // Let's assume due date is end of day or specific time.
-        // For visual, let's put it at 1 hour block.
-        endTime: "13:00",
+        startTime: assignment.startTime, 
+        endTime: assignment.endTime,
         type: "assignment"
      })
   })
 
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+    <div className="flex-1 space-y-8 p-6 md:p-8 pt-6 max-w-7xl mx-auto relative">
+      {/* Three.js + GSAP animations */}
+      <DashboardAnimations />
+
+      <div id="dashboard-header" className="flex items-center justify-between">
+        <div>
+          <h2 className="lovable-heading-page text-foreground">Dashboard</h2>
+          <p className="text-sm text-[#5f5f5d] mt-1">Welcome back. Here&apos;s your academic overview.</p>
+        </div>
       </div>
       
       {/* Stats Row */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div id="stats-row" className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard
           title="Assignments Due"
           value={totalAssignments}
           description="Pending tasks"
-          icon={BookOpen}
+          icon={<BookOpen className="h-4 w-4 text-foreground" />}
+          sparklineData={[2, 4, 3, 6, 5, totalAssignments, totalAssignments + 1]}
         />
         <StatsCard
           title="Study Hours"
-          value={totalHours.toFixed(1)}
+          value={Number(totalHours.toFixed(1))}
           description="Estimated effort remaining"
-          icon={Clock}
+          icon={<Clock className="h-4 w-4 text-foreground" />}
+          sparklineData={[5, 8, 6, 10, 7, totalHours]}
         />
         <StatsCard
           title="Focus Score"
-          value={scoredAssignments.length > 0 ? scoredAssignments[0].priorityScore : 0}
+          value={scoredAssignments.length > 0 ? Number(scoredAssignments[0].priorityScore.toFixed(1)) : 0}
           description="Top priority score"
-          icon={CheckCircle}
+          icon={<CheckCircle className="h-4 w-4 text-foreground" />}
+          sparklineData={[3, 5, 7, 4, 6, scoredAssignments.length > 0 ? scoredAssignments[0].priorityScore : 0]}
         />
         <StatsCard
           title="Active Courses"
           value={user.courses.length}
           description="Enrolled courses"
-          icon={CalendarIcon}
+          icon={<CalendarIcon className="h-4 w-4 text-foreground" />}
+          sparklineData={[1, 2, 2, 3, user.courses.length]}
         />
       </div>
 
       {/* Main Content */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <div className="col-span-4">
+      <div id="main-content" className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
+        <div className="col-span-full lg:col-span-4">
             <WeeklyCalendar events={calendarEvents} />
         </div>
-        <div className="col-span-3">
+        <div className="col-span-full lg:col-span-3">
           <PriorityList assignments={todaysFocus} />
         </div>
       </div>

@@ -22,10 +22,8 @@ export function TimetableGrid({ schedule, index, onSelect }: TimetableGridProps)
     const endMinutes = timeToMinutes(endTime)
     const durationMinutes = endMinutes - startMinutes
     
-    // Calculate top offset relative to startHour
     const startOffsetMinutes = startMinutes - (startHour * 60)
     
-    // 40px per hour for compact view in generator results
     const hourHeight = 40
     const top = (startOffsetMinutes / 60) * hourHeight
     const height = (durationMinutes / 60) * hourHeight
@@ -37,43 +35,46 @@ export function TimetableGrid({ schedule, index, onSelect }: TimetableGridProps)
   }
 
   return (
-    <Card className="hover:border-primary/50 transition-colors cursor-pointer" onClick={onSelect}>
+    <Card 
+      className="hover:border-foreground/20 transition-all duration-200 cursor-pointer" 
+      onClick={onSelect}
+    >
       <CardHeader className="pb-2">
-        <CardTitle className="text-base flex justify-between">
+        <CardTitle className="text-base flex justify-between text-foreground">
             <span>Option {index + 1}</span>
-            <span className="text-sm font-normal text-muted-foreground">Score: {schedule.score}</span>
+            <span className="text-sm font-normal text-[#5f5f5d]">Score: {schedule.score}</span>
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0 overflow-hidden">
         <div className="flex text-[10px]">
-            <div className="w-10 flex-none border-r bg-muted/20">
-              <div className="h-6 border-b" /> 
+            <div className="w-10 flex-none border-r border-border">
+              <div className="h-6 border-b border-border" /> 
               {hours.map((hour) => (
-                <div key={hour} className="h-[40px] border-b text-muted-foreground p-1 text-right pr-1">
+                <div key={hour} className="h-[40px] border-b border-border text-[#5f5f5d] p-1 text-right pr-1">
                   {hour}
                 </div>
               ))}
             </div>
 
-            <div className="flex-1 grid grid-cols-5 divide-x">
-              {daysOfWeek.slice(1, 6).map((day) => ( // Mon-Fri only for compact view
+            <div className="flex-1 grid grid-cols-5 divide-x divide-border">
+              {daysOfWeek.slice(1, 6).map((day) => (
                 <div key={day} className="min-w-[40px] relative">
-                  <div className="h-6 border-b flex items-center justify-center font-medium bg-muted/20">
+                  <div className="h-6 border-b border-border flex items-center justify-center font-medium bg-[rgba(28,28,28,0.02)] text-foreground">
                     {day}
                   </div>
                   <div className="relative h-[480px]"> 
                     {hours.map((_, i) => (
-                      <div key={i} className="h-[40px] border-b border-dashed border-muted/50" />
+                      <div key={i} className="h-[40px] border-b border-dashed border-[#eceae4]/70" />
                     ))}
                     
                     {schedule.courses.filter(c => c.days.includes(day)).map(course => (
                         <div
                         key={course.id + day}
-                        className="absolute left-0.5 right-0.5 rounded px-1 py-0.5 text-[0.6rem] border overflow-hidden bg-primary/10 border-primary/20 text-primary-foreground leading-tight"
+                        className="absolute left-0.5 right-0.5 rounded-md px-1 py-0.5 text-[0.6rem] border border-foreground/15 overflow-hidden bg-foreground/5 text-foreground leading-tight"
                         style={getEventStyle(course.startTime, course.endTime)}
                         title={`${course.courseCode}\n${course.startTime}-${course.endTime}`}
                       >
-                        <div className="font-semibold text-primary truncate">{course.courseCode}</div>
+                        <div className="font-medium truncate">{course.courseCode}</div>
                       </div>
                     ))}
                   </div>
